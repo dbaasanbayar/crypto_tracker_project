@@ -1,13 +1,22 @@
 import requests
+import os
+from dotenv import load_dotenv
+
+# 1. .env файлыг уншиж эхлүүлэх
+load_dotenv()
+# 2. Түлхүүрийг орчны хувьсагчаас татаж авах
+# Хэрэв олдохгүй бол None буцаана
+COINCAP_API_KEY = os.getenv("COINCAP_API_KEY")
 
 def fetch_prices():
     url = "https://api.coincap.io/v2/assets"
+
+    # Түлхүүр байхгүй бол анхааруулга өгөх
+    if not COINCAP_API_KEY:
+        print("Алдаа: COINCAP_API_KEY олдсонгүй. .env файлаа шалгана уу.")
+        return []
     
-    # Мэргэжлийн түвшинд Header нэмэх (Optional but good)
-    headers = {
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-    }
+    headers = {"Authorization": f"Bearer {COINCAP_API_KEY}"}
     
     try: 
         response = requests.get(url, headers=headers, timeout=10)
