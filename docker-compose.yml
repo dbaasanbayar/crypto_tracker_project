@@ -1,0 +1,12 @@
+version: '3.8' # Compose-ийн хувилбар
+
+services:
+  crypto-pipeline: # Бидний сервисийн нэр
+    build: .       # Одоо байгаа хавтсан дахь Dockerfile-ыг ашиглах
+    container_name: crypto_tracker_container
+    volumes:
+      - ./data:/app/data  # Компьютер дээрх data хавтсыг контейнертэй холбох
+      - ./logs:/app/logs  # Лог файлыг гаднаасаа харах боломжтой болгох
+    env_file:
+      - .env              # API Key-г .env файлаас автоматаар унших
+    restart: "no"         # ETL дуусаад контейнер зогсоно (Дахин асах шаардлагагүй)
