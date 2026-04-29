@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 version: '3.8' # Compose-ийн хувилбар
 
+=======
+>>>>>>> 2c5a62abd813c2eb0b48428309ed2e455ce6c0e3
 services:
   crypto-pipeline: # Бидний сервисийн нэр
     build: .       # Одоо байгаа хавтсан дахь Dockerfile-ыг ашиглах

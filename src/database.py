@@ -1,4 +1,5 @@
 import sqlite3
+<<<<<<< HEAD
 import os
 
 def create_tables(db='data/crypto.db'):
@@ -28,12 +29,18 @@ def create_tables(db='data/crypto.db'):
     
     conn.commit()
     conn.close()
+=======
+>>>>>>> 2c5a62abd813c2eb0b48428309ed2e455ce6c0e3
 
 def save_to_db(coin_data):
     # 'with' ашигласнаар conn.close() хийх шаардлагагүй, автоматаар хаагдана
     with sqlite3.connect("data/crypto.db") as conn:
         cursor = conn.cursor()
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 2c5a62abd813c2eb0b48428309ed2e455ce6c0e3
         for coin in coin_data:
             # 1. Зоос assets хүснэгтэд байгаа эсэхийг шалгах, байхгүй бол нэмэх
             # 'symbol' багана UNIQUE учраас INSERT OR IGNORE давхардахаас сэргийлнэ
@@ -41,7 +48,11 @@ def save_to_db(coin_data):
                 INSERT OR IGNORE INTO assets (symbol, name) 
                 VALUES (?, ?)
             ''', (coin['symbol'], coin['name']))
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> 2c5a62abd813c2eb0b48428309ed2e455ce6c0e3
             # 2. Тухайн зоосны ID-г олж авах (Lookup)
             cursor.execute('SELECT id FROM assets WHERE symbol = ?', (coin['symbol'],))
             asset_id = cursor.fetchone()[0]
