@@ -2,14 +2,6 @@ import requests
 import os
 from dotenv import load_dotenv
 
-<<<<<<< HEAD
-load_dotenv()
-COINCAP_API_KEY = os.getenv("COINCAP_API_KEY")
-
-def fetch_prices():
-    url = "https://rest.coincap.io/v3/assets"
-
-=======
 # 1. .env файлыг уншиж эхлүүлэх
 load_dotenv()
 # 2. Түлхүүрийг орчны хувьсагчаас татаж авах
@@ -17,21 +9,14 @@ load_dotenv()
 COINCAP_API_KEY = os.getenv("COINCAP_API_KEY")
 
 def fetch_prices():
-    url = "https://api.coincap.io/v2/assets"
+    url = "https://rest.coincap.io/v3/assets"
 
     # Түлхүүр байхгүй бол анхааруулга өгөх
->>>>>>> 2c5a62abd813c2eb0b48428309ed2e455ce6c0e3
     if not COINCAP_API_KEY:
         print("Алдаа: COINCAP_API_KEY олдсонгүй. .env файлаа шалгана уу.")
         return []
     
-<<<<<<< HEAD
-    headers = {"Authorization": f"Bearer {COINCAP_API_KEY}",
-               "Accept": "application/json",
-                "Content-Type": "application/json"}
-=======
     headers = {"Authorization": f"Bearer {COINCAP_API_KEY}"}
->>>>>>> 2c5a62abd813c2eb0b48428309ed2e455ce6c0e3
     
     try: 
         response = requests.get(url, headers=headers, timeout=10)
@@ -55,9 +40,3 @@ def fetch_prices():
     except Exception as e:
         print(f"API-тай холбогдоход алдаа гарлаа: {e}")
         return []
-
-# # Туршиж үзэх
-# if __name__ == "__main__":
-#     prices = fetch_prices()
-#     for p in prices:
-#         print(f"{p['name']} ({p['symbol']}): ${p['price']:.2f}")
