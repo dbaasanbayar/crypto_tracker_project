@@ -40,3 +40,23 @@ def fetch_prices():
     except Exception as e:
         print(f"API-тай холбогдоход алдаа гарлаа: {e}")
         return []
+
+def send_telegram_alert(message):
+    token = os.getenv("TELEGRAM_TOKEN")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
+
+    if not token or not chat_id:
+        return
+    
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    payload = {
+        "chat_id": chat_id,
+        "text": message,
+        "parse_mode": "Markdown"
+    }
+
+    try:
+        requests.post(url, json=payload)
+    except Exception as e:
+        print(f"Telegram мэдэгдэл илгээхэд алдаа гарлаа: {e}")
+    

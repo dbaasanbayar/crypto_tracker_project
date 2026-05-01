@@ -1,10 +1,13 @@
 services:
-  crypto-pipeline: # Бидний сервисийн нэр
-    build: .       # Одоо байгаа хавтсан дахь Dockerfile-ыг ашиглах
+  crypto-pipeline:
+    build: .
     container_name: crypto_tracker_container
     volumes:
-      - ./data:/app/data  # Компьютер дээрх data хавтсыг контейнертэй холбох
-      - ./logs:/app/logs  # Лог файлыг гаднаасаа харах боломжтой болгох
+      - ./data:/app/data
+      - ./logs:/app/logs
     env_file:
-      - .env              # API Key-г .env файлаас автоматаар унших
-    restart: "no"         # ETL дуусаад контейнер зогсоно (Дахин асах шаардлагагүй)
+      - .env
+    # --- ЭДГЭЭР ХЭСГИЙГ ӨӨРЧЛӨХ ШААРДЛАГАТАЙ ---
+    environment:
+      - PYTHONUNBUFFERED=1  # 1. Docker Logs таб дээр мэдээллийг шууд харуулна
+    restart: always         # 2. Алдаа гарч унтарвал өөрөө дахин асна (Alert системд чухал)
