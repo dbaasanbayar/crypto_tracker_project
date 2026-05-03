@@ -1,12 +1,23 @@
 import sqlite3
 import os
 
-def create_tables(db='data/crypto.db'):
-    os.makedirs(os.path.dirname(db), exist_ok=True)
-    conn = sqlite3.connect(db)
+# Өгөгдлийн сангийн байршил
+DB_PATH = 'data/crypto.db'
+
+def get_connection():
+    """Өгөгдлийн сантай холбогдох холболтыг буцаана."""
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    conn = sqlite3.connect(DB_PATH)
+    # Foreign key дэмжлэгийг идэвхжүүлэх (SQLite-д заавал ингэж зааж өгдөг)
+    conn.execute("PRAGMA foreign_keys = ON")
+    return conn
+
+def create_tables():
+    """Хэрэгцээт бүх хүснэгтүүдийг үүсгэнэ."""
+    conn = get_connection()
     cursor = conn.cursor()
     
-    # 1. Assets хүснэгт (Parent Table)
+    # 1. Assets хүснэгт
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS assets (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -15,7 +26,7 @@ def create_tables(db='data/crypto.db'):
         )
     ''')
     
-    # 2. Price History хүснэгт (Child Table)
+    # 2. Price History хүснэгт (Түүхий өгөгдөл)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS price_history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,8 +37,22 @@ def create_tables(db='data/crypto.db'):
         )
     ''')
     
+    # 3. Hourly Summary хүснэгт (Боловсруулсан өгөгдөл)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS hourly_summary(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            asset_id INTEGER,
+            avg_price REAL,
+            max_price REAL,
+            min_price REAL,
+            hour_timestamp TEXT,
+            FOREIGN KEY (asset_id) REFERENCES assets (id)
+        )
+    ''')
+    
     conn.commit()
     conn.close()
+    print("🗄️ Өгөгдлийн сангийн бүтэц бэлэн боллоо.")
 
 def save_to_db(coin_data):
     # 'with' ашигласнаар conn.close() хийх шаардлагагүй, автоматаар хаагдана

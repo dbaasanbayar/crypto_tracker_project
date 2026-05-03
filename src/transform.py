@@ -1,0 +1,32 @@
+import sqlite3
+from src.database import get_connection
+
+def aggregate_hourly_data():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # Сүүлийн 1 цагийн датаг нэгтгэх SQL
+    # Энэ SQL нь минут тутам орсон датаг Asset-аар нь бүлэглэж (GROUP BY), 
+    # дундаж, дээд, доод үнийг тооцоолно.
+    query = """
+        INSERT INTO hourly_summary (asset_id, avg_price, max_price, min_price, hour_timestamp)
+        SELECT 
+            asset_id,
+            AVG(price),
+            MAX(price),
+            MIN(price),
+            strftime('%Y-%m-%d %H:00:00', timestamp/1000, 'unixepoch') as hour
+        FROM price_history
+        WHERE timestamp >= (strftime('%s', 'now') - 3600) * 1000
+        GROUP BY asset_id, hour
+        ON CONFLICT DO NOTHING;
+    """
+
+    try: 
+        cursor.execute(query)
+        conn.commit()
+        print("✅ Hourly aggregation амжилттай хийгдлээ.")
+    except Exception as e:
+        print(f"❌ Aggregation алдаа: {e}")
+    finally:
+        conn.close()

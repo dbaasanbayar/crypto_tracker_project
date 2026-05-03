@@ -1,6 +1,7 @@
 from src.api_client import fetch_prices, send_telegram_alert
 from src.database import create_tables, save_to_db
 import time
+from src.transform import aggregate_hourly_data
 
 last_prices = {}
 
@@ -9,10 +10,20 @@ def run_pipeline():
     # 1. Хүснэгтүүдээ бэлдэх
     create_tables()
     
+    # 1. Давталт эхлэхээс өмнө хугацааг тэмдэглэж авна
+    aggregate_hourly_data()
+    last_agg_time = time.time()
+    
     while True:
         try: 
             print(f"\n[{time.strftime('%H:%M:%S')}] Дата татаж байна...")
             coins = fetch_prices()
+
+            # 2. Нэгтгэл хийх нөхцөл
+            if time.time() - last_agg_time > 3600:
+                print("--- Цаг тутмын нэгтгэл эхэлж байна ---")
+                aggregate_hourly_data()
+                last_agg_time = time.time()
 
             if coins:
                 save_to_db(coins)
