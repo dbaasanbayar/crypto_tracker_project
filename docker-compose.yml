@@ -11,3 +11,14 @@ services:
     environment:
       - PYTHONUNBUFFERED=1  # 1. Docker Logs таб дээр мэдээллийг шууд харуулна
     restart: always         # 2. Алдаа гарч унтарвал өөрөө дахин асна (Alert системд чухал)
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    container_name: crypto_dashboard
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - crypto-pipeline  
