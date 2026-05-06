@@ -1,79 +1,80 @@
-import sqlite3
+import psycopg2
 import os
+from dotenv import load_dotenv
 
-# Өгөгдлийн сангийн байршил
-DB_PATH = 'data/crypto.db'
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 def get_connection():
-    """Өгөгдлийн сантай холбогдох холболтыг буцаана."""
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
-    # Foreign key дэмжлэгийг идэвхжүүлэх (SQLite-д заавал ингэж зааж өгдөг)
-    conn.execute("PRAGMA foreign_keys = ON")
-    return conn
+    # SSL mode нь Neon-д заавал хэрэгтэй
+    return psycopg2.connect(DATABASE_URL, sslmode='require')
 
 def create_tables():
-    """Хэрэгцээт бүх хүснэгтүүдийг үүсгэнэ."""
     conn = get_connection()
     cursor = conn.cursor()
     
-    # 1. Assets хүснэгт
+    # 1. Assets хүснэгт (SERIAL ашиглана)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS assets (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             symbol TEXT UNIQUE NOT NULL,
             name TEXT NOT NULL
         )
     ''')
     
-    # 2. Price History хүснэгт (Түүхий өгөгдөл)
+    # 2. Price History хүснэгт
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS price_history (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            asset_id INTEGER,
-            price REAL NOT NULL,
-            timestamp INTEGER NOT NULL,
-            FOREIGN KEY (asset_id) REFERENCES assets (id)
+            id SERIAL PRIMARY KEY,
+            asset_id INTEGER REFERENCES assets(id),
+            price DECIMAL NOT NULL,
+            timestamp BIGINT NOT NULL
         )
     ''')
     
-    # 3. Hourly Summary хүснэгт (Боловсруулсан өгөгдөл)
+    # 3. Hourly Summary хүснэгт
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS hourly_summary(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            asset_id INTEGER,
-            avg_price REAL,
-            max_price REAL,
-            min_price REAL,
-            hour_timestamp TEXT,
-            FOREIGN KEY (asset_id) REFERENCES assets (id)
+            id SERIAL PRIMARY KEY,
+            asset_id INTEGER REFERENCES assets(id),
+            avg_price DECIMAL,
+            max_price DECIMAL,
+            min_price DECIMAL,
+            hour_timestamp TIMESTAMP
         )
     ''')
     
     conn.commit()
+    cursor.close()
     conn.close()
-    print("🗄️ Өгөгдлийн сангийн бүтэц бэлэн боллоо.")
+    print("🗄️ Neon PostgreSQL бүтэц бэлэн боллоо.")
 
 def save_to_db(coin_data):
-    # 'with' ашигласнаар conn.close() хийх шаардлагагүй, автоматаар хаагдана
-    with sqlite3.connect("data/crypto.db") as conn:
-        cursor = conn.cursor()
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
         for coin in coin_data:
-            # 1. Зоос assets хүснэгтэд байгаа эсэхийг шалгах, байхгүй бол нэмэх
-            # 'symbol' багана UNIQUE учраас INSERT OR IGNORE давхардахаас сэргийлнэ
+            # ON CONFLICT ашиглан давхардахаас сэргийлнэ
             cursor.execute('''
-                INSERT OR IGNORE INTO assets (symbol, name) 
-                VALUES (?, ?)
+                INSERT INTO assets (symbol, name) 
+                VALUES (%s, %s)
+                ON CONFLICT (symbol) DO NOTHING
             ''', (coin['symbol'], coin['name']))
-            # 2. Тухайн зоосны ID-г олж авах (Lookup)
-            cursor.execute('SELECT id FROM assets WHERE symbol = ?', (coin['symbol'],))
+            
+            cursor.execute('SELECT id FROM assets WHERE symbol = %s', (coin['symbol'],))
             asset_id = cursor.fetchone()[0]
 
-            # 3. Олж авсан asset_id-г ашиглан ханшийг түүх рүү хадгалах
             cursor.execute('''
                 INSERT INTO price_history (asset_id, price, timestamp)
-                VALUES (?, ?, ?)
+                VALUES (%s, %s, %s)
             ''', (asset_id, coin['price'], coin['timestamp']))
             
         conn.commit()
-    print("Дата амжилттай хадгалагдлаа!")
+        print("✅ Дата Neon руу амжилттай хадгалагдлаа!")
+    except Exception as e:
+        print(f"❌ Алдаа гарлаа: {e}")
+        conn.rollback()
+    finally:
+        cursor.close()
+        conn.close()

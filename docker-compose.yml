@@ -2,14 +2,14 @@ services:
   crypto-pipeline:
     build: .
     container_name: crypto_tracker_container
-    volumes:
-      - ./data:/app/data
-      - ./logs:/app/logs
     env_file:
       - .env
     # --- ЭДГЭЭР ХЭСГИЙГ ӨӨРЧЛӨХ ШААРДЛАГАТАЙ ---
     environment:
       - PYTHONUNBUFFERED=1  # 1. Docker Logs таб дээр мэдээллийг шууд харуулна
+      - DATABASE_URL=${DATABASE_URL}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
     restart: always         # 2. Алдаа гарч унтарвал өөрөө дахин асна (Alert системд чухал)
   dashboard:
     build:
