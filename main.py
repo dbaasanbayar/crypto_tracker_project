@@ -48,7 +48,7 @@ def run_pipeline():
         except Exception as e:
             print(f"Системд алдаа гарлаа: {e}")
         print("60 секунд хүлээнэ...")
-        time.sleep(60)
+        time.sleep(120)
 
 if __name__ == "__main__":
     run_pipeline()
