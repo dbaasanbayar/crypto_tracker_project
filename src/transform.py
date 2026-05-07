@@ -9,18 +9,24 @@ def aggregate_hourly_data():
     # Энэ SQL нь минут тутам орсон датаг Asset-аар нь бүлэглэж (GROUP BY), 
     # дундаж, дээд, доод үнийг тооцоолно.
     query = """
-        INSERT INTO hourly_summary (asset_id, avg_price, max_price, min_price, hour_timestamp)
-        SELECT 
-            asset_id,
-            AVG(price),
-            MAX(price),
-            MIN(price),
-            strftime('%Y-%m-%d %H:00:00', timestamp/1000, 'unixepoch') as hour
-        FROM price_history
-        WHERE timestamp >= (strftime('%s', 'now') - 3600) * 1000
-        GROUP BY asset_id, hour
-        ON CONFLICT DO NOTHING;
-    """
+    INSERT INTO hourly_summary (
+        asset_id,
+        avg_price,
+        max_price,
+        min_price,
+        hour_timestamp
+    )
+    SELECT 
+        asset_id,
+        AVG(price),
+        MAX(price),
+        MIN(price),
+        DATE_TRUNC('hour', TO_TIMESTAMP(timestamp / 1000)) as hour
+    FROM price_history
+    WHERE timestamp >= (EXTRACT(EPOCH FROM NOW()) - 3600) * 1000
+    GROUP BY asset_id, hour
+    ON CONFLICT DO NOTHING;
+"""
 
     try: 
         cursor.execute(query)
