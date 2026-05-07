@@ -9,7 +9,8 @@ load_dotenv()
 COINCAP_API_KEY = os.getenv("COINCAP_API_KEY")
 
 def fetch_prices():
-    url = "https://rest.coincap.io/v3/assets"
+    # url = "https://rest.coincap.io/v3/assets"
+    url = "https://api.coincap.io/v2/assets"
 
     # Түлхүүр байхгүй бол анхааруулга өгөх
     if not COINCAP_API_KEY:
@@ -17,10 +18,10 @@ def fetch_prices():
         return []
     
     headers = {
-                "Authorization": f"Bearer {COINCAP_API_KEY}",
-                "Accept-Encoding": "gzip",
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
-                }
+        "Authorization": f"Bearer {COINCAP_API_KEY}",
+        "Accept-Encoding": "gzip",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
+    }
     
     try: 
         response = requests.get(url, headers=headers, timeout=10)

@@ -24,7 +24,7 @@ def run_pipeline():
                 print("--- Цаг тутмын нэгтгэл эхэлж байна ---")
                 aggregate_hourly_data()
                 last_agg_time = time.time()
-        
+            
             if coins:
                 save_to_db(coins)
                 print(f"Амжилттай: {len(coins)} зоосны дата хадгалагдлаа.")
