@@ -4,10 +4,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+
 
 def get_connection():
-    # SSL mode нь Neon-д заавал хэрэгтэй
+    DATABASE_URL = os.getenv("DATABASE_URL")
+    
+    if DATABASE_URL is None:
+        print("❌ АЛДАА: DATABASE_URL хувьсагч огт олдохгүй байна!")
+    else:
+        print(f"📡 DATABASE_URL олдлоо. Урт нь: {len(DATABASE_URL)} тэмдэгт.")
+        # Нууцлалын үүднээс зөвхөн эхлэлийг нь харна
+        print(f"🔗 URL эхлэл: {DATABASE_URL[:15]}...")
+
     return psycopg2.connect(DATABASE_URL, sslmode='require')
 
 def create_tables():
