@@ -16,7 +16,11 @@ def fetch_prices():
         print("Алдаа: COINCAP_API_KEY олдсонгүй. .env файлаа шалгана уу.")
         return []
     
-    headers = {"Authorization": f"Bearer {COINCAP_API_KEY}"}
+    headers = {
+                "Authorization": f"Bearer {COINCAP_API_KEY}",
+                "Accept-Encoding": "gzip",
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+                }
     
     try: 
         response = requests.get(url, headers=headers, timeout=10)
