@@ -9,8 +9,8 @@ load_dotenv()
 COINCAP_API_KEY = os.getenv("COINCAP_API_KEY")
 
 def fetch_prices():
-    # url = "https://rest.coincap.io/v3/assets"
-    url = "https://api.coincap.io/v2/assets"
+    url = "https://rest.coincap.io/v3/assets"
+    # url = "https://api.coincap.io/v2/assets"
 
     # Түлхүүр байхгүй бол анхааруулга өгөх
     if not COINCAP_API_KEY:
@@ -51,17 +51,15 @@ def send_telegram_alert(message):
     chat_id = os.getenv("TELEGRAM_CHAT_ID")
 
     if not token or not chat_id:
+        print("❌ Telegram Token эсвэл Chat ID олдсонгүй!")
         return
     
     url = f"https://api.telegram.org/bot{token}/sendMessage"
-    payload = {
-        "chat_id": chat_id,
-        "text": message,
-        "parse_mode": "Markdown"
-    }
+    payload = {"chat_id": chat_id, "text": message, "parse_mode": "Markdown"}
 
     try:
-        requests.post(url, json=payload)
+        r = requests.post(url, json=payload)
+        if r.status_code != 200:
+            print(f"❌ Telegram Error: {r.status_code}, {r.text}")
     except Exception as e:
-        print(f"Telegram мэдэгдэл илгээхэд алдаа гарлаа: {e}")
-    
+        print(f"❌ Telegram Connection Error: {e}")
