@@ -26,8 +26,8 @@ def run_pipeline():
                 # ТЕЛЕГРАМ РУУ МЭДЭГДЭХ
                 send_telegram_alert(error_msg)
                 
-                print("600 секунд хүлээнэ...")
-                time.sleep(60000)
+                print("6000 секунд хүлээнэ...")
+                time.sleep(60)
                 continue
 
             # 2. Дата бааз руу хадгалах
@@ -45,7 +45,7 @@ def run_pipeline():
                     change_pct = ((current_price - old_price) / old_price) * 100 
 
                     # 1%-иас их хэлбэлзэл гарвал мэдэгдэх
-                    if abs(change_pct) >= 1.0:
+                    if abs(change_pct) >= 0.1:
                         direction = "🚀" if change_pct > 0 else "📉"
                         msg = f"{direction} *{symbol} Alert!*\nҮнэ: ${current_price:,.2f}\nӨөрчлөлт: {change_pct:+.2f}%"
                         send_telegram_alert(msg)
@@ -63,10 +63,10 @@ def run_pipeline():
             err = f"🚨 *System Crash:* {str(e)}"
             print(err)
             send_telegram_alert(err)
-            time.sleep(60000)
+            time.sleep(60)
         
-        print("600 секунд хүлээнэ...")
-        time.sleep(60000)
+        print("60 секунд хүлээнэ...")
+        time.sleep(60)
 
 if __name__ == "__main__":
     run_pipeline()
