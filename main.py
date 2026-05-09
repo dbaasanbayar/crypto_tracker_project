@@ -27,7 +27,7 @@ def run_pipeline():
                 send_telegram_alert(error_msg)
                 
                 print("6000 секунд хүлээнэ...")
-                time.sleep(60)
+                time.sleep(6000)
                 continue
 
             # 2. Дата бааз руу хадгалах
@@ -63,10 +63,10 @@ def run_pipeline():
             err = f"🚨 *System Crash:* {str(e)}"
             print(err)
             send_telegram_alert(err)
-            time.sleep(60)
+            time.sleep(6000)
         
         print("60 секунд хүлээнэ...")
-        time.sleep(60)
+        time.sleep(6000)
 
 if __name__ == "__main__":
     run_pipeline()
