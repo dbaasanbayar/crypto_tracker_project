@@ -84,3 +84,32 @@ def save_to_db(coin_data):
     finally:
         cursor.close()
         conn.close()
+
+def get_recent_prices(limit=10):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # JOIN ашиглан symbol-ийг assets хүснэгтээс татаж байна
+    query = """
+        SELECT a.symbol, ph.price, ph.timestamp 
+        FROM price_history ph
+        JOIN assets a ON ph.asset_id = a.id
+        ORDER BY ph.id DESC 
+        LIMIT %s
+    """
+    
+    try:
+        cur.execute(query, (limit,)) # Таслал нэмсэн (limit,)
+        rows = cur.fetchall()
+        
+        data_str = ""
+        for row in rows:
+            # row[0]=symbol, row[1]=price, row[2]=timestamp
+            data_str += f"Coin: {row[0]}, Price: ${row[1]:,.2f}, Time: {row[2]}\n"
+        return data_str
+    except Exception as e:
+        print(f"❌ Query алдаа: {e}")
+        return ""
+    finally:
+        cur.close()
+        conn.close()
