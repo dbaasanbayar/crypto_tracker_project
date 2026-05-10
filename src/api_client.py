@@ -3,36 +3,34 @@ import os
 from dotenv import load_dotenv
 import time
 
-# 1. .env файлыг уншиж эхлүүлэх
 load_dotenv()
-# 2. Түлхүүрийг орчны хувьсагчаас татаж авах
-# Хэрэв олдохгүй бол None буцаана
-COINCAP_API_KEY = os.getenv("COINCAP_API_KEY")
+
 
 def fetch_prices():
-    url = "https://api.binance.com/api/v3/ticker/price"
-    symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT"]
-    # Түлхүүр байхгүй бол анхааруулга өгөх
-    
-    try: 
-        response = requests.get(url, timeout=10)
-        response.raise_for_status() # Хэрэв 404 эсвэл 500 алдаа гарвал шууд except рүү үсрэнэ
-        
-        full_data = response.json() # Бүх датаг авах
-        
+    url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin&vs_currencies=usd"
+    try:
+        response = requests.get(url, timeout=15)
+        response.raise_for_status()
+        raw_data = response.json()
+
+        mapping = {
+            'bitcoin': ('BTC', 'Bitcoin'),
+            'ethereum': ('ETH', 'Ethereum'),
+            'solana': ('SOL', 'Solana'),
+            'binancecoin': ('BNB', 'BNB')
+        }
         clean_data = []
-        # Зөвхөн эхний 10 зоосыг туршилтаар авъя
-        for item in full_data:
-            if item['symbol'] in symbols:
-                clean_data.append({
-                    'name': item['symbol'].replace("USDT", ""),
-                    'symbol': item['symbol'],
-                    'price': float(item['price']),
-                    'timestamp': int(time.time() * 1000)
-                })
+        for coin_id, info in raw_data.items():
+            symbol, name = mapping[coin_id]
+            clean_data.append({
+                'name': name,
+                'symbol': symbol,
+                'price': float(info['usd']),
+                'timestamp': int(time.time() * 1000)
+            })
         return clean_data
     except Exception as e:
-        print(f"API Error: {e}")
+        print(f"API Error (CoinGecko): {e}")
         return []
 
 def send_telegram_alert(message):
