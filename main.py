@@ -15,7 +15,7 @@ def run_pipeline():
 
     FETCH_INTERVAL = 30 * 60
     ALERT_INTERVAL = 3 * 60 * 60
-    AI_AGG_INTERVAL = 6 * 60 * 60
+    AI_AGG_INTERVAL = 60
 
     while True:
         try:
@@ -40,7 +40,7 @@ def run_pipeline():
                 price = coin['price']
                 if symbol in last_prices:
                     change_pct = ((price - last_prices[symbol]) / last_prices[symbol]) * 100
-                    if abs(change_pct) >= 0.1:
+                    if abs(change_pct) >= 1.0:
                         send_telegram_alert(f"{'🚀' if change_pct > 0 else '📉'} *{symbol}* үнэ: ${price:,.2f} ({change_pct:+.2f}%)")
                 last_prices[symbol] = price
 
@@ -49,12 +49,12 @@ def run_pipeline():
                     print("--- 6 цагийн AI Шинжилгээ эхэллээ ---")
                     aggregate_hourly_data()
 
-                    recent_data = get_recent_prices(15) # Сүүлийн 15 мөр дата
+                    recent_data = get_recent_prices()
                     ai_conclusion = get_ai_analysis(recent_data)
-
+                    print(ai_conclusion)
                     send_telegram_alert(f"🤖 *6-Hour Market Report (Llama 3):*\n\n{ai_conclusion}")
                     last_agg_time = time.time()
-
+            
         except Exception as e:
             print(f"🚨 Алдаа: {e}")
             send_telegram_alert(f"🚨 *Critical Crash:* {str(e)[:100]}")

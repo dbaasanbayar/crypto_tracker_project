@@ -1,4 +1,3 @@
-import sqlite3
 from src.database import get_connection
 
 def aggregate_hourly_data():

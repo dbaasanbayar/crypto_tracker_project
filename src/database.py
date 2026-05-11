@@ -85,7 +85,7 @@ def save_to_db(coin_data):
         cursor.close()
         conn.close()
 
-def get_recent_prices(limit=10):
+def get_recent_prices(limit=15):
     conn = get_connection()
     cur = conn.cursor()
 
