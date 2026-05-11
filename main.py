@@ -15,7 +15,7 @@ def run_pipeline():
 
     FETCH_INTERVAL = 30 * 60
     ALERT_INTERVAL = 3 * 60 * 60
-    AI_AGG_INTERVAL = 60
+    AI_AGG_INTERVAL = 4 * 60 * 60
 
     while True:
         try:
