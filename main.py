@@ -15,7 +15,7 @@ def run_pipeline():
 
     FETCH_INTERVAL = 30 * 60
     ALERT_INTERVAL = 3 * 60 * 60
-    AI_AGG_INTERVAL = 4 * 60 * 60
+    AI_AGG_INTERVAL = 12 * 60 * 60
 
     while True:
         try:
@@ -25,7 +25,7 @@ def run_pipeline():
             if not coins:
                 if time.time() - last_err_time > ALERT_INTERVAL:
                     send_telegram_alert("⚠️ *System Alert:* API холболт тасарлаа. (3 цаг тутамд сануулж байна)")
-                    last_error_time = time.time()
+                    last_err_time = time.time()
                 
                 print(f"Дараагийн оролдлого 30 минутын дараа...")
                 time.sleep(FETCH_INTERVAL)
@@ -49,10 +49,10 @@ def run_pipeline():
                     print("--- 6 цагийн AI Шинжилгээ эхэллээ ---")
                     aggregate_hourly_data()
 
-                    recent_data = get_recent_prices()
+                    recent_data = get_recent_prices(24)
                     ai_conclusion = get_ai_analysis(recent_data)
                     print(ai_conclusion)
-                    send_telegram_alert(f"🤖 *6-Hour Market Report (Llama 3):*\n\n{ai_conclusion}")
+                    send_telegram_alert(f"🤖 *12-Hour Market Report (Llama 3):*\n\n{ai_conclusion}")
                     last_agg_time = time.time()
             
         except Exception as e:
@@ -62,7 +62,7 @@ def run_pipeline():
         
         print("✅ Цикл дууслаа. 30 минут хүлээнэ...")
         time.sleep(FETCH_INTERVAL)
-
+        
 if __name__ == "__main__":
     run_pipeline()
 
