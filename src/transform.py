@@ -4,9 +4,6 @@ def aggregate_hourly_data():
     conn = get_connection()
     cursor = conn.cursor()
 
-    # Сүүлийн 1 цагийн датаг нэгтгэх SQL
-    # Энэ SQL нь минут тутам орсон датаг Asset-аар нь бүлэглэж (GROUP BY), 
-    # дундаж, дээд, доод үнийг тооцоолно.
     query = """
     INSERT INTO hourly_summary (
         asset_id,
