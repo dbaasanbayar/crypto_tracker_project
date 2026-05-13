@@ -2,15 +2,23 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import time
-from src.database import get_connection # Folder бүтэц чинь src/ бол ингэж дуудна
+from sqlalchemy import create_engine
+import os
 
 # 1. СЕТАП ХЭСЭГ (Хамгийн дээр байх ёстой)
 st.set_page_config(page_title="Crypto Live Dashboard", layout="wide")
 
+def get_engine():
+    db_url = os.getenv("DATABASE_URL")
+    if db_url and db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+    return create_engine(db_url)
+
+engine = get_engine()
+
 # 2. ӨГӨГДӨЛ ТАТАХ ФУНКЦҮҮД (Дуудахаас өмнө тодорхойлсон байх)
 def get_raw_data():
     """Сүүлийн үеийн түүхий өгөгдлийг татах"""
-    conn = get_connection()
     query = """
     SELECT a.name, p.price, TO_TIMESTAMP(p.timestamp / 1000) as time
     FROM assets a
@@ -18,21 +26,18 @@ def get_raw_data():
     ORDER BY p.timestamp DESC
     LIMIT 500
     """
-    df = pd.read_sql_query(query, conn)
-    conn.close()
+    df = pd.read_sql_query(query, engine)
     return df
 
 def get_hourly_data():
     """Нэгтгэсэн (Aggregated) өгөгдлийг татах"""
-    conn = get_connection()
     query = """
     SELECT a.name, h.avg_price, h.hour_timestamp
     FROM assets a
     JOIN hourly_summary h ON a.id = h.asset_id
     ORDER BY h.hour_timestamp ASC
     """
-    df = pd.read_sql_query(query, conn)
-    conn.close()
+    df = pd.read_sql_query(query, engine)
     return df
 
 # 3. SIDEBAR (Тохиргоо)

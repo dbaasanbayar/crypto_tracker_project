@@ -3,7 +3,7 @@
 Энэхүү төсөл нь криптовалютын өгөгдлийг бодит хугацаанд (Real-time) татаж, **PostgreSQL** баазад хадгалан, **Llama 3.3 AI** загвар ашиглан зах зээлийн нэгтгэсэн шинжилгээ хийдэг, бүрэн автоматжуулсан **End-to-End Data Engineering** систем юм.
 
 ### 🔗 Live Links
-* **Live Dashboard:** [Энд Railway-ийн линкээ тавиарай]
+* **Live Dashboard:** [cryptotrackerproject-production.up.railway.app]
 * **Telegram Bot:** `t.me/MyCryptoAlertBot` (Команд: `/latest_analysis`)
 
 ---

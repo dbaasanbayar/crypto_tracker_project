@@ -6,3 +6,4 @@ plotly
 psycopg2-binary
 groq
 pyTelegramBotAPI==4.33.0
+sqlalchemy

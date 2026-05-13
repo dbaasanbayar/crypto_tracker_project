@@ -7,8 +7,8 @@ load_dotenv()
 def get_connection():
     DATABASE_URL = os.getenv("DATABASE_URL")
     
-    if DATABASE_URL is None:
-        print("❌ АЛДАА: DATABASE_URL хувьсагч огт олдохгүй байна!")
+    if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
     else:
         print(f"📡 DATABASE_URL олдлоо. Урт нь: {len(DATABASE_URL)} тэмдэгт.")
         # Нууцлалын үүднээс зөвхөн эхлэлийг нь харна
