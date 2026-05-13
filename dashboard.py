@@ -18,7 +18,6 @@ engine = get_engine()
 
 # 2. ӨГӨГДӨЛ ТАТАХ ФУНКЦҮҮД (Дуудахаас өмнө тодорхойлсон байх)
 def get_raw_data():
-    """Сүүлийн үеийн түүхий өгөгдлийг татах"""
     query = """
     SELECT a.name, p.price, TO_TIMESTAMP(p.timestamp / 1000) as time
     FROM assets a
@@ -54,7 +53,7 @@ df = get_raw_data()
 if not df.empty:
     st.subheader("💰 Хамгийн сүүлийн үеийн ханш")
     latest_df = df.groupby('name').first().reset_index()
-    st.dataframe(latest_df, use_container_width=True)
+    st.dataframe(latest_df, width="stretch")
 
     st.subheader("📈 Үнийн график (Сүүлийн өгөгдлүүд)")
     selected_coin = st.selectbox("Зоос сонгох:", df['name'].unique())
