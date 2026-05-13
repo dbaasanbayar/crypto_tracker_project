@@ -12,7 +12,7 @@ def get_raw_data():
     """Сүүлийн үеийн түүхий өгөгдлийг татах"""
     conn = get_connection()
     query = """
-    SELECT a.name, p.price, datetime(p.timestamp/1000, 'unixepoch') as time
+    SELECT a.name, p.price, TO_TIMESTAMP(p.timestamp / 1000) as time
     FROM assets a
     JOIN price_history p ON a.id = p.asset_id
     ORDER BY p.timestamp DESC
