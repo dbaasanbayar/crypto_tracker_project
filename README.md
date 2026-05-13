@@ -1,92 +1,60 @@
-# 🚀 Crypto Live ETL Pipeline & Dashboard
+# 🚀 Crypto Live ETL Pipeline & AI Analyst
 
-Энэхүү төсөл нь криптовалютын ханшийг бодит хугацаанд (Real-time) татаж, боловсруулан, хянах боломжтой бүрэн автоматжуулсан **Data Engineering** систем юм. Docker орчинд ажиллах ба Python, SQLite, болон Streamlit технологиудыг ашигласан.
+Энэхүү төсөл нь криптовалютын өгөгдлийг бодит хугацаанд (Real-time) татаж, **PostgreSQL** баазад хадгалан, **Llama 3.3 AI** загвар ашиглан зах зээлийн нэгтгэсэн шинжилгээ хийдэг, бүрэн автоматжуулсан **End-to-End Data Engineering** систем юм.
 
+### 🔗 Live Links
+* **Live Dashboard:** [Энд Railway-ийн линкээ тавиарай]
+* **Telegram Bot:** `t.me/MyCryptoAlertBot` (Команд: `/latest_analysis`)
 
+---
 
 ## 🛠 Технологийн стек (Tech Stack)
 
-*   **Language:** Python 3.11
-*   **Containerization:** Docker & Docker Compose
-*   **Database:** SQLite (Persistent storage via Docker Volumes)
-*   **Data Visualization:** Streamlit & Plotly
-*   **Alerting:** Telegram Bot API
-*   **Libraries:** Pandas, Requests, Schedule
+* **Language:** Python 3.11
+* **Database:** Neon PostgreSQL (Serverless Storage)
+* **AI Engine:** Groq Cloud - Llama 3.3 70B (Market Analysis)
+* **Deployment:** Railway (CI/CD) & Docker
+* **Data Visualization:** Streamlit & Plotly
+* **Alerting:** Telegram Bot API (Custom Handlers & Threading)
+
+---
 
 ## 🏗 Системийн архитектур (Architecture)
 
-Систем нь дараах 3 үндсэн хэсгээс бүрдэнэ:
+Систем нь **Decoupled Architecture** буюу өгөгдөл цуглуулах, боловсруулах, харуулах хэсгүүд нь бие даасан байдлаар зохион байгуулагдсан:
 
-1.  **ETL Pipeline (Producer):** CoinGecko API-аас минут тутамд өгөгдөл татаж, цэвэрлэн, SQLite бааз руу хадгална. Үнийн огцом өөрчлөлтийг Telegram-аар мэдээлнэ.
-2.  **Data Transformation:** Цаг тутамд түүхий өгөгдлийг нэгтгэж (Aggregation), аналитик хийхэд бэлэн болгон `hourly_summary` хүснэгтэд хадгална.
-3.  **Analytics Dashboard (Consumer):** Хадгалагдсан өгөгдлийг интерактив график хэлбэрээр хэрэглэгчид харуулна.
-
-## 🚀 Хэрхэн ажиллуулах вэ?
-
-### 1. Урьдчилсан нөхцөл
-*   Mac эсвэл Windows дээр **Docker Desktop** суусан байх.
-*   `.env` файл үүсгэж Telegram ботын мэдээллээ оруулсан байх.
-
-### 2. Ажиллуулах тушаал
-Төслийн хавтас дотор терминалаа нээгээд дараах тушаалыг өгнө:
-```bash
-docker-compose up -d --build
-
-### 3. Dashboard нээх
-Контейнерууд амжилттай ассаны дараа чи өөрийн дуртай вэб хөтөч (Chrome, Safari г.м) дээр дараах хаягийг нээж, бодит хугацааны аналитикийг харах боломжтой:
-
-🔗 **URL:** [http://localhost:8501](http://localhost:8501)
-
-*Тэмдэглэл: Хэрэв чи Docker-ийг үүлэн сервер дээр ажиллуулж байгаа бол `localhost`-ийн оронд тухайн серверийн IP хаягийг ашиглана уу.*
-
-### 4. 📊 Өгөгдлийн бүтэц (Data Schema)
-
-Өгөгдлийн сангийн бүтэц нь Relational загвартай бөгөөд дата саянтист болон аналитикчдад ашиглахад хялбар байхаар зохион байгуулагдсан:
-
-assets хүснэгт: Системийн хянаж буй криптовалютуудын үндсэн мэдээлэл.
-
-* id: Primary Key.
-
-* symbol: Зоосны тэмдэг (жишээ нь: btc).
-
-* name: Зоосны нэр (жишээ нь: Bitcoin).
-
-price_history хүснэгт: Минут тутамд татаж авсан түүхий өгөгдөл (Raw data).
-
-* asset_id: assets хүснэгттэй холбогдох     Foreign Key.
-
-* price: Тухайн үеийн ханш (USD).
-
-* timestamp: Өгөгдөл татсан цаг хугацаа (Unix format).
-
-hourly_summary хүснэгт: Аналитик хийхэд зориулсан нэгтгэсэн өгөгдөл (Aggregated data).
-
-* asset_id: Foreign Key.
-
-* avg_price: Тухайн цаг дахь дундаж үнэ.
-
-* hour_timestamp: Цаг тутмын тэмдэглэгээ.
+1.  **ETL Pipeline (Producer):** CoinGecko API-аас 30 минут тутамд өгөгдөл татаж, цэвэрлэн, PostgreSQL рүү хадгална.
+2.  **Data Modeling (Fact/Dimension):** Өгөгдлийг **Star Schema** загвараар зохион байгуулсан нь аналитик хийх боломжийг оновчтой болгосон.
+    * `assets` (Dimension Table): Зоосны ерөнхий мэдээлэл.
+    * `price_history` (Fact Table): Үнийн түүхэн хөдөлгөөн болон цаг хугацааны тэмдэглэгээ.
+3.  **AI Analysis (Llama 3.3):** 12 цаг тутамд баазаас сүүлийн өгөгдлийг шүүж, AI-аар зах зээлийн нэгтгэсэн дүгнэлт гаргуулна.
+4.  **Monitoring & Alerting:** API тасрах эсвэл үнийн огцом хэлбэлзэл (>=1%) үед Telegram-аар шууд мэдээлнэ.
 
 
-### 5. 📈 Ирээдүйн сайжруулалтууд (Roadmap)
 
+---
 
-Энэхүү төсөл нь цаашид илүү мэргэжлийн түвшний Data Engineering Platform болон өргөжих бүрэн боломжтой:
+## 📊 Өгөгдлийн бүтэц (Data Schema)
 
-Data Quality & Validation (Phase 2):
+Өгөгдлийн сангийн бүтэц нь аналитикчдад ашиглахад хялбар байхаар зохион байгуулагдсан:
 
-Great Expectations эсвэл Pydantic ашиглан өгөгдлийн чанарыг шалгах шүүлтүүр нэмэх.
+| Хүснэгт | Төрөл | Тайлбар |
+| :--- | :--- | :--- |
+| `assets` | Dimension | `id`, `symbol`, `name` (Үндсэн мэдээлэл) |
+| `price_history` | Fact | `asset_id`, `price`, `timestamp` (Түүхий өгөгдөл) |
+| `hourly_summary` | Aggregated | `asset_id`, `avg_price`, `hour_timestamp` (Цаг тутмын нэгтгэл) |
 
-Буруу эсвэл дутуу дата орж ирэх үед ажиллах "Error Handling" логикийг сайжруулах.
+---
+📉 Системийн боломжууд
+Interactive Analytics: Streamlit ашиглан түүхэн өгөгдлийг график хэлбэрээр харах.
 
-Cloud Deployment & CI/CD (Phase 2):
+AI Summary on Demand: Telegram бот дээр /latest_analysis команд өгч, AI-ийн хамгийн сүүлийн дүгнэлтийг шууд унших (Threading ашиглан бодит хугацаанд хариу өгнө).
 
-Системийг AWS эсвэл Google Cloud дээр байршуулж, 24/7 тасралтгүй ажиллуулах.
+Resilience: Алдааг хянах (Error handling) системтэй. API холболт тасарвал 3 цаг тутамд сануулга илгээнэ.
 
-GitHub Actions ашиглан автоматжуулсан тест болон deployment (CI/CD) тохируулах.
+📈 Ирээдүйн сайжруулалтууд (Roadmap)
+Phase 2: Great Expectations ашиглан өгөгдлийн чанарыг шалгах шүүлтүүр нэмэх.
 
-Data Enrichment & AI (Phase 3):
+Phase 2: GitHub Actions ашиглан автоматжуулсан CI/CD тохируулах.
 
-Крипто мэдээ болон сошиал медиагийн хандлагыг (Sentiment Analysis) татаж, үнийн хөдөлгөөнтэй харьцуулах.
-
-Түүхэн өгөгдөл дээр суурилсан Machine Learning модел ашиглан үнийн таамаглал хийх хэсэг нэмэх.
+Phase 3: Twitter эсвэл News API ашиглан Sentiment Analysis хийж, үнийн хөдөлгөөнтэй харьцуулах.

@@ -2,10 +2,13 @@ import requests
 import os
 from dotenv import load_dotenv
 import time
+import telebot
 
 load_dotenv()
 
-
+token = os.getenv("TELEGRAM_TOKEN")
+chat_id = os.getenv("TELEGRAM_CHAT_ID")
+bot = telebot.TeleBot(token)
 def fetch_prices():
     url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin&vs_currencies=usd"
     try:
@@ -34,19 +37,10 @@ def fetch_prices():
         return []
 
 def send_telegram_alert(message):
-    token = os.getenv("TELEGRAM_TOKEN")
-    chat_id = os.getenv("TELEGRAM_CHAT_ID")
-
     if not token or not chat_id:
         print("❌ Telegram Token эсвэл Chat ID олдсонгүй!")
         return
-    
-    url = f"https://api.telegram.org/bot{token}/sendMessage"
-    payload = {"chat_id": chat_id, "text": message, "parse_mode": "Markdown"}
-
     try:
-        r = requests.post(url, json=payload)
-        if r.status_code != 200:
-            print(f"❌ Telegram Error: {r.status_code}, {r.text}")
+        bot.send_message(chat_id, message, parse_mode="Markdown")
     except Exception as e:
         print(f"❌ Telegram Connection Error: {e}")
