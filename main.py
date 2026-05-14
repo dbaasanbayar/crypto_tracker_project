@@ -17,13 +17,13 @@ def send_welcome(message):
         "Llama 3.3 ашиглан зах зээлийн нэгтгэсэн тайлан гаргадаг.\n\n"
         "👉 /latest_analysis - Сүүлийн тайланг унших"
     )
-    bot.reply_to(message, welcome_text, parse_mode='Markdown')
+    bot.reply_to(message, welcome_text, parse_mode='HTML')
 
 @bot.message_handler(commands=['latest_analysis'])
 def send_latest(message):
     global latest_report
     response = f"📊 *Сүүлийн 12 цагийн нэгтгэсэн тайлан:* \n\n{latest_report}"
-    bot.reply_to(message, response, parse_mode='Markdown')
+    bot.reply_to(message, response, parse_mode='HTML')
     
 def run_bot():
     print("🤖 Telegram Bot команд сонсож эхэллээ...")
