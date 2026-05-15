@@ -15,7 +15,7 @@ def get_connection():
         print(f"🔗 URL эхлэл: {DATABASE_URL[:15]}...")
 
     return psycopg2.connect(DATABASE_URL, sslmode='require')
-
+    
 def create_tables():
     conn = get_connection()
     cursor = conn.cursor()

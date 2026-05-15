@@ -18,7 +18,7 @@ def send_welcome(message):
         "👉 /latest_analysis - Сүүлийн тайланг унших"
     )
     bot.reply_to(message, welcome_text, parse_mode='HTML')
-
+    
 @bot.message_handler(commands=['latest_analysis'])
 def send_latest(message):
     global latest_report
