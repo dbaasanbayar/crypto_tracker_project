@@ -26,9 +26,15 @@ def send_latest(message):
     bot.reply_to(message, response, parse_mode='Markdown')
     
 def run_bot():
-    print("🤖 Telegram Bot команд сонсож эхэллээ...")
-    bot.infinity_polling()
+    print("🤖 Telegram Bot эхэллээ...")
     
+    # ✅ Restart хийхдээ хуучин мессежийг алгасна
+    bot.infinity_polling(
+        skip_pending=True,          # хуучин командуудыг алгасна
+        timeout=20,
+        long_polling_timeout=20,
+        restart_on_change=False,
+    )
 def run_pipeline():
     global latest_report
     print("--- ETL Процесс эхэллээ ---")
