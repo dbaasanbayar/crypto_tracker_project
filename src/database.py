@@ -7,12 +7,11 @@ load_dotenv()
 def get_connection():
     DATABASE_URL = os.getenv("DATABASE_URL")
     
-    if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    if not DATABASE_URL:
+        raise ValueError("❌ DATABASE_URL environment variable тохируулагдаагүй байна!")
+
+    if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-    else:
-        print(f"📡 DATABASE_URL олдлоо. Урт нь: {len(DATABASE_URL)} тэмдэгт.")
-        # Нууцлалын үүднээс зөвхөн эхлэлийг нь харна
-        print(f"🔗 URL эхлэл: {DATABASE_URL[:15]}...")
 
     return psycopg2.connect(DATABASE_URL, sslmode='require')
     
@@ -20,8 +19,8 @@ def create_tables():
     conn = get_connection()
     cursor = conn.cursor()
     
-    # 1. Assets хүснэгт (SERIAL ашиглана)
-    cursor.execute('''
+    try:
+        cursor.execute('''
         CREATE TABLE IF NOT EXISTS assets (
             id SERIAL PRIMARY KEY,
             symbol TEXT UNIQUE NOT NULL,
@@ -29,8 +28,8 @@ def create_tables():
         )
     ''')
     
-    # 2. Price History хүснэгт
-    cursor.execute('''
+        # 2. Price History хүснэгт
+        cursor.execute('''
         CREATE TABLE IF NOT EXISTS price_history (
             id SERIAL PRIMARY KEY,
             asset_id INTEGER REFERENCES assets(id),
@@ -39,22 +38,29 @@ def create_tables():
         )
     ''')
     
-    # 3. Hourly Summary хүснэгт
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS hourly_summary(
-            id SERIAL PRIMARY KEY,
-            asset_id INTEGER REFERENCES assets(id),
-            avg_price DECIMAL,
-            max_price DECIMAL,
-            min_price DECIMAL,
-            hour_timestamp TIMESTAMP
-        )
-    ''')
-    
-    conn.commit()
-    cursor.close()
-    conn.close()
-    print("🗄️ Neon PostgreSQL бүтэц бэлэн боллоо.")
+        # 3. Hourly Summary хүснэгт
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS hourly_summary (
+        id SERIAL PRIMARY KEY,
+        asset_id INTEGER REFERENCES assets(id),
+        avg_price DECIMAL,
+        max_price DECIMAL,
+        min_price DECIMAL,
+        hour_timestamp TIMESTAMP,
+
+        -- ✅ Нэмэх: нэг зоос, нэг цагт ганцхан мөр байна
+        UNIQUE(asset_id, hour_timestamp)
+    )
+    ''') 
+        conn.commit()
+        print("🗄️ Neon PostgreSQL бүтэц бэлэн боллоо.")
+    except Exception as e:
+        conn.rollback()
+        print(f"❌ Хүснэгт үүсгэхэд алдаа: {e}")
+        raise
+    finally:     
+        cursor.close()
+        conn.close()
 
 def save_to_db(coin_data):
     conn = get_connection()
@@ -85,26 +91,24 @@ def save_to_db(coin_data):
         cursor.close()
         conn.close()
 
-def get_recent_prices(limit=12):
+def get_recent_prices(hours=24):
     conn = get_connection()
     cur = conn.cursor()
 
-    # JOIN ашиглан symbol-ийг assets хүснэгтээс татаж байна
     query = """
-        SELECT a.symbol, ph.price, ph.timestamp 
+        SELECT a.symbol, ph.price, ph.timestamp
         FROM price_history ph
         JOIN assets a ON ph.asset_id = a.id
-        ORDER BY ph.id DESC 
-        LIMIT %s
+        WHERE ph.timestamp >= (EXTRACT(EPOCH FROM NOW()) - %s) * 1000
+        ORDER BY ph.timestamp DESC
     """
     
     try:
-        cur.execute(query, (limit,)) # Таслал нэмсэн (limit,)
+        cur.execute(query, (hours * 3600,))
         rows = cur.fetchall()
-        
+
         data_str = ""
         for row in rows:
-            # row[0]=symbol, row[1]=price, row[2]=timestamp
             data_str += f"Coin: {row[0]}, Price: ${row[1]:,.2f}, Time: {row[2]}\n"
         return data_str
     except Exception as e:
@@ -112,4 +116,34 @@ def get_recent_prices(limit=12):
         return ""
     finally:
         cur.close()
+        conn.close()
+def migrate():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Алхам 1: Давхардсан мөрүүдийг устгах
+        cursor.execute("""
+            DELETE FROM hourly_summary a
+            USING hourly_summary b
+            WHERE a.id > b.id
+                AND a.asset_id = b.asset_id
+                AND a.hour_timestamp = b.hour_timestamp;
+        """)
+        print(f"🧹 Давхардсан мөрүүд устгагдлаа.")
+
+        cursor.execute("""
+            ALTER TABLE hourly_summary 
+            ADD CONSTRAINT hourly_summary_unique 
+            UNIQUE (asset_id, hour_timestamp);
+        """)
+        print("✅ UNIQUE constraint амжилттай нэмэгдлээ.")
+
+        conn.commit()
+        
+    except Exception as e:
+        conn.rollback()
+        print(f"ℹ️  Migration: {e}")  # аль хэдийн байвал алдаа биш
+    finally:
+        cursor.close()
         conn.close()
