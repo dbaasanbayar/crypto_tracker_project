@@ -53,13 +53,13 @@ df = get_raw_data()
 if not df.empty:
     st.subheader("💰 Хамгийн сүүлийн үеийн ханш")
     latest_df = df.groupby('name').first().reset_index()
-    st.dataframe(latest_df, width="stretch")
+    st.dataframe(latest_df, use_container_width=True)
 
     st.subheader("📈 Үнийн график (Сүүлийн өгөгдлүүд)")
     selected_coin = st.selectbox("Зоос сонгох:", df['name'].unique())
     filtered_df = df[df['name'] == selected_coin].sort_values('time')
     fig = px.line(filtered_df, x='time', y='price', title=f"{selected_coin} ханшийн хөдөлгөөн")
-    st.plotly_chart(fig, width="stretch")
+    st.plotly_chart(fig, use_container_width=True)
 
 # --- HOURLY SUMMARY SECTION ---
 st.subheader("📊 Цаг тутмын дундаж үнийн тренд")
@@ -69,7 +69,7 @@ if not df_hourly.empty:
     fig_hourly = px.bar(df_hourly, x='hour_timestamp', y='avg_price', 
                         color='name', barmode='group',
                         title="Зоос бүрийн цаг тутмын дундаж үнэ")
-    st.plotly_chart(fig_hourly, width="stretch")
+    st.plotly_chart(fig_hourly, use_container_width=True)
 else:
     st.info("Цаг тутмын нэгтгэсэн өгөгдөл хараахан цуглаагүй байна.")
 

@@ -1,9 +1,9 @@
-requests
-python-dotenv
-streamlit
-pandas
-plotly
-psycopg2-binary
-groq
+requests==2.33.1
+python-dotenv==1.2.2
+streamlit==1.57.0
+pandas==3.0.2
+plotly==6.7.0
+psycopg2-binary==2.9.12
+groq==1.2.0
 pyTelegramBotAPI==4.33.0
-sqlalchemy
+sqlalchemy==2.0.49

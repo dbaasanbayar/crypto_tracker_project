@@ -1,8 +1,8 @@
 from src.api_client import fetch_prices, send_telegram_alert, bot
-from src.database import create_tables, save_to_db
+from src.database import create_tables, save_to_db, migrate
 from src.transform import aggregate_hourly_data
 from src.ai_analyzer import get_ai_analysis  # Шинэ AI функц
-from src.database import get_recent_prices  # Баазаас дата унших функц
+from src.database import get_recent_prices   # Баазаас дата унших функц
 import time
 import threading
 
@@ -23,7 +23,7 @@ def send_welcome(message):
 def send_latest(message):
     global latest_report
     response = f"📊 *Сүүлийн 12 цагийн нэгтгэсэн тайлан:* \n\n{latest_report}"
-    bot.reply_to(message, response, parse_mode='HTML')
+    bot.reply_to(message, response, parse_mode='Markdown')
     
 def run_bot():
     print("🤖 Telegram Bot команд сонсож эхэллээ...")
@@ -33,7 +33,7 @@ def run_pipeline():
     global latest_report
     print("--- ETL Процесс эхэллээ ---")
     create_tables() 
-    
+    migrate() 
     last_prices = {} # Үнийн өөрчлөлт хянах санах ой
     last_agg_time = time.time() # Нэгтгэл хийсэн сүүлийн цаг
     last_err_time = 0
@@ -75,18 +75,17 @@ def run_pipeline():
             if time.time() - last_agg_time > AI_AGG_INTERVAL:
                     print("--- 12 цагийн AI Шинжилгээ эхэллээ ---")
                     aggregate_hourly_data()
-                    recent_data = get_recent_prices(24)
+                    recent_data = get_recent_prices(hours=24)
 
                     ai_conclusion = get_ai_analysis(recent_data)
                     latest_report = ai_conclusion
-    
+
                     send_telegram_alert(f"🤖 *12-Hour Market Report (Llama 3):*\n\n{ai_conclusion}")
                     last_agg_time = time.time()
                     
         except Exception as e:
             print(f"🚨 Алдаа: {e}")
             send_telegram_alert(f"🚨 *Critical Crash:* {str(e)[:100]}")
-            time.sleep(FETCH_INTERVAL)
         
         print("✅ Цикл дууслаа. 30 минут хүлээнэ...")
         time.sleep(FETCH_INTERVAL)
