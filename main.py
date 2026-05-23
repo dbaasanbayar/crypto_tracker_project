@@ -39,7 +39,7 @@ def run_bot():
             print(f"🔄 Bot алдаа: {e}")
             print("15 секундын дараа дахин оролдоно...")
             time.sleep(15)  
-            
+
 def run_pipeline():
     global latest_report
     print("--- ETL Процесс эхэллээ ---")
@@ -48,7 +48,7 @@ def run_pipeline():
     last_prices = {} # Үнийн өөрчлөлт хянах санах ой
     last_agg_time = time.time() # Нэгтгэл хийсэн сүүлийн цаг
     last_err_time = 0
-
+    
     FETCH_INTERVAL = 30 * 60
     ALERT_INTERVAL = 3 * 60 * 60
     AI_AGG_INTERVAL = 12 * 60 * 60
@@ -78,7 +78,7 @@ def run_pipeline():
                 price = coin['price']
                 if symbol in last_prices:
                     change_pct = ((price - last_prices[symbol]) / last_prices[symbol]) * 100
-                    if abs(change_pct) >= 1.0:
+                    if abs(change_pct) >= 2.0:
                         send_telegram_alert(f"{'🚀' if change_pct > 0 else '📉'} *{symbol}* үнэ: ${price:,.2f} ({change_pct:+.2f}%)")
                 last_prices[symbol] = price
 
