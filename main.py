@@ -51,7 +51,7 @@ def run_pipeline():
     
     FETCH_INTERVAL = 30 * 60
     ALERT_INTERVAL = 3 * 60 * 60
-    AI_AGG_INTERVAL = 12 * 60 * 60
+    AI_AGG_INTERVAL = 24 * 60 * 60
 
     latest_report = "Одоогоор тайлан бэлэн болоогүй байна. 12 цагийн циклийг хүлээнэ үү."
 
