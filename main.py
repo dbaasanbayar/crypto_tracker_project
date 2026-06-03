@@ -13,7 +13,7 @@ latest_report = "Хүлээж байна..."
 def send_welcome(message):
     welcome_text = (
         "👋 *Сайн байна уу! Би Баасанбаярын AI Шинжээч байна.*\n\n"
-        "📈 Би 30 минут тутамд крипто үнэ цуглуулж, 12 цаг тутамд "
+        "📈 Би 30 минут тутамд крипто үнэ цуглуулж, 24 цаг тутамд "
         "Llama 3.3 ашиглан зах зээлийн нэгтгэсэн тайлан гаргадаг.\n\n"
         "👉 /latest_analysis - Сүүлийн тайланг унших"
     )
@@ -22,7 +22,7 @@ def send_welcome(message):
 @bot.message_handler(commands=['latest_analysis'])
 def send_latest(message):
     global latest_report
-    response = f"📊 *Сүүлийн 12 цагийн нэгтгэсэн тайлан:* \n\n{latest_report}"
+    response = f"📊 *Сүүлийн 24 цагийн нэгтгэсэн тайлан:* \n\n{latest_report}"
     bot.reply_to(message, response, parse_mode='Markdown')
     
 def run_bot():
@@ -53,7 +53,7 @@ def run_pipeline():
     ALERT_INTERVAL = 3 * 60 * 60
     AI_AGG_INTERVAL = 24 * 60 * 60
 
-    latest_report = "Одоогоор тайлан бэлэн болоогүй байна. 12 цагийн циклийг хүлээнэ үү."
+    latest_report = "Одоогоор тайлан бэлэн болоогүй байна. 24 цагийн циклийг хүлээнэ үү."
 
     while True:
         try:
@@ -65,7 +65,7 @@ def run_pipeline():
                     send_telegram_alert("⚠️ *System Alert:* API холболт тасарлаа. (3 цаг тутамд сануулж байна)")
                     last_err_time = time.time()
                 
-                print(f"Дараагийн оролдлого 30 минутын дараа...")
+                print(f"Дараагийн оролдлого 3 tsagiin дараа...")
                 time.sleep(FETCH_INTERVAL)
                 continue
                 
